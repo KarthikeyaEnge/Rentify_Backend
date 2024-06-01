@@ -10,7 +10,7 @@ const login = async (req, res) => {
     if (udata) {
       const check = udata.Password === pass;
 
-      if (check) {
+      if (check && udata.type === "Seller") {
         const propids = udata.propid;
         const propcol = client.db("rentify").collection("prop");
         const propdata = await propcol
@@ -18,8 +18,10 @@ const login = async (req, res) => {
           .toArray();
         udata.propdata = propdata;
         res.status(200).json({ message: "Authorized", data: udata });
+      } else if (check && udata.type === "Buyer") {
+        res.status(200).json({ message: "Authorized", data: udata });
       } else {
-        res.status(403).json({ message: "Not Authorized" });
+        res.status(401).json({ message: "Invalid Password" });
       }
     } else {
       res.status(404).json({ message: "user not found" });
